@@ -13,13 +13,20 @@
 set -e
 
 # Load arguments into variables.
-LOCATION=$1
+ACTION=$1
+LOCATION=$2
 PX4_FIRMWARE_PATH="./Firmware"
 
 # Select lat/lng/alt based on selected location
 unset LATITUDE
 unset LONGITUDE
 unset ALTITUDE
+
+if [ "$LOCATION" = "" ]
+then
+  LOCATION="auvsi_competition"
+fi
+
 if [ "$LOCATION" = "apollo_practice" ]
 then
   LATITUDE=34.173103
@@ -36,7 +43,7 @@ then
   LONGITUDE=-118.440213
   ALTITUDE=141.122
 else
-  echo "Unknown location given!"
+  echo "Unknown location given: $LOCATION"
   exit 1
 fi
 
@@ -45,8 +52,6 @@ then
   echo "Must clone submodules first!"
   exit 1
 fi
-
-./build_dockerfile.sh
 
 # Set root path of the repository volume on the host machine.
 # Note: If docker is called within another docker instance & is trying to start
@@ -59,10 +64,26 @@ then
   ROOT_PATH=${ROOT_PATH/$HOST_ROOT_SEARCH/$HOST_ROOT_REPLACE}
 fi
 
+MAKE_CMD=""
+if [ "$ACTION" = "build" ]
+then
+  MAKE_CMD="make px4_sitl_default"
+elif [ "$ACTION" = "simulate_headless" ]
+then
+  MAKE_CMD="HEADLESS=1 make px4_sitl_default gazebo"
+elif [ "$ACTION" = "simulate" ]
+then
+  MAKE_CMD="make px4_sitl_default gazebo"
+else
+  echo "Unknown action given: $ACTION"
+  exit 1
+fi
+
+docker build -t uas-at-ucla_px4-simulator docker
 docker run                                                                     \
-  -it                                                                           \
+  -it                                                                          \
   --rm                                                                         \
-  -v $ROOT_PATH/$PX4_FIRMWARE_PATH:/home/user/Firmware                         \
+  -v $ROOT_PATH:/home/user/px4-sitl-wrapper                                    \
   --net host                                                                   \
   -e DISPLAY=:0                                                                \
   -v /tmp/.X11-unix:/tmp/.X11-unix:ro                                          \
@@ -73,5 +94,5 @@ docker run                                                                     \
   getent group $(id -g) || groupadd -g $(id -g) host_group
   usermod -u $(id -u) -g $(id -g) user
   chown user /home/user
-  cd /home/user/Firmware
-  sudo -u user -H sh -c \"HEADLESS=1 make px4_sitl_default gazebo\""
+  cd /home/user/px4-sitl-wrapper/Firmware
+  sudo -u user -H sh -c \"$MAKE_CMD\""
