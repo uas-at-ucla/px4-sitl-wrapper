@@ -1,0 +1,4 @@
+[submodule "Firmware"]
+	path = Firmware
+	url = git@github.com:uas-at-ucla/Firmware.git
+	branch = master
