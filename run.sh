@@ -109,5 +109,5 @@ docker run                                                                     \
   HOST_GROUP=\$(stat -c '%u' .)
   getent group \$HOST_USER || groupadd -g \$HOST_GROUP host_group
   usermod -u \$HOST_USER -g \$HOST_GROUP user
-  cd $PWD_LOC
+  cd $PWD_LOC/Firmware
   sudo -u user -H sh -c \"$MAKE_CMD\""
