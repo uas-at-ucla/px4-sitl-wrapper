@@ -46,7 +46,7 @@ then
   exit 1
 fi
 
-docker build -t uas-at-ucla_px4-simulator .
+./build_dockerfile.sh
 
 # Set root path of the repository volume on the host machine.
 # Note: If docker is called within another docker instance & is trying to start
