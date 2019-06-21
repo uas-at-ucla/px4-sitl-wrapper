@@ -72,12 +72,17 @@ fi
 # Note: If docker is called within another docker instance & is trying to start
 #       the UAS@UCLA docker environment, the root will need to be set to the
 #       path that is used by wherever dockerd is running.
-ROOT_PATH=$(pwd)
+ROOT_PATH=$(git rev-parse --show-superproject-working-tree)
 if [ ! -z $HOST_ROOT_SEARCH ] && [ ! -z $HOST_ROOT_REPLACE ]
 then
   # Need to use path of the host container running dockerd.
   ROOT_PATH=${ROOT_PATH/$HOST_ROOT_SEARCH/$HOST_ROOT_REPLACE}
 fi
+
+#PWD_LOC=$(realpath --relative-to="$ROOT_PATH" "$(pwd)")
+CURRENT_DIRECTORY=$(pwd)
+PWD_LOC=$(python -c "import os.path; print os.path.relpath(\"$CURRENT_DIRECTORY\", \"$ROOT_PATH\")")
+echo $PWD_LOC
 
 # Build and run the docker image. Adjust file permissions of the docker user to
 # match the host.
@@ -85,7 +90,7 @@ docker build -t uas-at-ucla_px4-simulator docker
 docker run                                                                     \
   -it                                                                          \
   --rm                                                                         \
-  -v $ROOT_PATH:/home/user/px4-sitl-wrapper                                    \
+  -v $ROOT_PATH:/home/user/repo                                                \
   --net host                                                                   \
   -e DISPLAY=:0                                                                \
   -v /tmp/.X11-unix:/tmp/.X11-unix:ro                                          \
@@ -93,8 +98,10 @@ docker run                                                                     \
   uas-at-ucla_px4-simulator                                                    \
   bash -c "
   set -e
-  getent group $(id -g) || groupadd -g $(id -g) host_group
-  usermod -u $(id -u) -g $(id -g) user
-  chown user /home/user
-  cd /home/user/px4-sitl-wrapper/Firmware
+  cd /home/user/repo
+  HOST_USER=\$(stat -c '%u' .)
+  HOST_GROUP=\$(stat -c '%u' .)
+  getent group \$HOST_USER || groupadd -g \$HOST_GROUP host_group
+  usermod -u \$HOST_USER -g \$HOST_GROUP user
+  cd $PWD_LOC
   sudo -u user -H sh -c \"$MAKE_CMD\""
