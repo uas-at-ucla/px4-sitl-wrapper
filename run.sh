@@ -79,16 +79,19 @@ check-and-reinit-submodules
 #       the UAS@UCLA docker environment, the root will need to be set to the
 #       path that is used by wherever dockerd is running.
 ROOT_PATH=$(git rev-parse --show-superproject-working-tree)
+if [ -z "$ROOT_PATH" ]
+then
+  ROOT_PATH=$(pwd)
+fi
+
 if [ ! -z $HOST_ROOT_SEARCH ] && [ ! -z $HOST_ROOT_REPLACE ]
 then
   # Need to use path of the host container running dockerd.
   ROOT_PATH=${ROOT_PATH/$HOST_ROOT_SEARCH/$HOST_ROOT_REPLACE}
 fi
 
-#PWD_LOC=$(realpath --relative-to="$ROOT_PATH" "$(pwd)")
 CURRENT_DIRECTORY=$(pwd)
 PWD_LOC=$(python -c "import os.path; print os.path.relpath(\"$CURRENT_DIRECTORY\", \"$ROOT_PATH\")")
-echo $PWD_LOC
 
 # Build and run the docker image. Adjust file permissions of the docker user to
 # match the host.
