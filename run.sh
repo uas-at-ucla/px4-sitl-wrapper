@@ -17,6 +17,15 @@ ACTION=$1
 LOCATION=$2
 PX4_FIRMWARE_PATH="./Firmware"
 
+# Helper functions.
+function check-and-reinit-submodules {
+    if git submodule status | egrep -q '^[-]|^[+]'
+    then
+            echo "Need to initialize git submodules"
+            git submodule update --init --recursive
+    fi
+}
+
 # Determine what action to perform.
 if [ "$ACTION" = "build" ]
 then
@@ -63,10 +72,7 @@ else
 fi
 
 # Check if submodules need to be cloned.
-if [ ! -d "$PX4_FIRMWARE_PATH" ]
-then
-  git submodule update --init --recursive
-fi
+check-and-reinit-submodules
 
 # Set root path of the repository volume on the host machine.
 # Note: If docker is called within another docker instance & is trying to start
@@ -93,8 +99,10 @@ docker run                                                                     \
   uas-at-ucla_px4-simulator                                                    \
   bash -c "
   set -e
-  getent group $(id -g) || groupadd -g $(id -g) host_group
-  usermod -u $(id -u) -g $(id -g) user
-  chown user /home/user
-  cd /home/user/px4-sitl-wrapper/Firmware
+  cd /home/user/px4-sitl-wrapper
+  HOST_USER=\$(stat -c '%u' .)
+  HOST_GROUP=\$(stat -c '%u' .)
+  getent group \$HOST_USER || groupadd -g \$HOST_GROUP host_group
+  usermod -u \$HOST_USER -g \$HOST_GROUP user
+  cd Firmware
   sudo -u user -H sh -c \"$MAKE_CMD\""
