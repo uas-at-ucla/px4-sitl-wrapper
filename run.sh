@@ -17,6 +17,21 @@ ACTION=$1
 LOCATION=$2
 PX4_FIRMWARE_PATH="./Firmware"
 
+# Determine what action to perform.
+if [ "$ACTION" = "build" ]
+then
+  MAKE_CMD="make px4_sitl_default"
+elif [ "$ACTION" = "simulate_headless" ]
+then
+  MAKE_CMD="HEADLESS=1 make px4_sitl_default gazebo"
+elif [ "$ACTION" = "simulate" ]
+then
+  MAKE_CMD="make px4_sitl_default gazebo"
+else
+  echo "Unknown action given: $ACTION"
+  exit 1
+fi
+
 # Select lat/lng/alt based on selected location
 unset LATITUDE
 unset LONGITUDE
@@ -47,10 +62,10 @@ else
   exit 1
 fi
 
+# Check if submodules need to be cloned.
 if [ ! -d "$PX4_FIRMWARE_PATH" ]
 then
-  echo "Must clone submodules first!"
-  exit 1
+  git submodule update --init --recursive
 fi
 
 # Set root path of the repository volume on the host machine.
@@ -64,21 +79,8 @@ then
   ROOT_PATH=${ROOT_PATH/$HOST_ROOT_SEARCH/$HOST_ROOT_REPLACE}
 fi
 
-MAKE_CMD=""
-if [ "$ACTION" = "build" ]
-then
-  MAKE_CMD="make px4_sitl_default"
-elif [ "$ACTION" = "simulate_headless" ]
-then
-  MAKE_CMD="HEADLESS=1 make px4_sitl_default gazebo"
-elif [ "$ACTION" = "simulate" ]
-then
-  MAKE_CMD="make px4_sitl_default gazebo"
-else
-  echo "Unknown action given: $ACTION"
-  exit 1
-fi
-
+# Build and run the docker image. Adjust file permissions of the docker user to
+# match the host.
 docker build -t uas-at-ucla_px4-simulator docker
 docker run                                                                     \
   -it                                                                          \
