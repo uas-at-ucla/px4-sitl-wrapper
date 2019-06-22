@@ -17,7 +17,9 @@ set -e
 # Load arguments into variables.
 ACTION=$1
 LOCATION=$2
+
 PX4_FIRMWARE_PATH="./Firmware"
+DOCKER_IP="192.168.3.20" # drone's docker network ip
 
 # Helper functions.
 function check-and-reinit-submodules {
@@ -38,6 +40,32 @@ then
 elif [ "$ACTION" = "simulate" ]
 then
   MAKE_CMD="make px4_sitl_default gazebo"
+elif [ "$ACTION" = "mavlink_router" ]
+then
+  while true
+  do
+    unset PX4_RUNNING_CONTAINER
+    while [ -z $PX4_RUNNING_CONTAINER ]
+    do
+      PX4_RUNNING_CONTAINER=$(docker ps \
+        --filter status=running \
+        --filter name="uas-at-ucla_px4-simulator" \
+        --format "{{.ID}}" \
+        --latest
+      )
+
+      sleep 0.5
+    done
+
+    echo "PX4 simulator docker started!"
+
+    docker exec -it $PX4_RUNNING_CONTAINER \
+      su - user bash -c "
+      set -e
+      mavlink-routerd -e \$HOST_IP:9010 -e $DOCKER_IP:9011 0.0.0.0:14550"
+    sleep 1
+  done
+  exit
 else
   echo "Unknown action given: $ACTION"
   exit 1
