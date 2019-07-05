@@ -16,7 +16,8 @@ set -e
 
 # Load arguments into variables.
 ACTION=$1
-LOCATION=$2
+FRAME_TYPE=$2
+LOCATION=$3
 
 PX4_FIRMWARE_PATH="./Firmware"
 DOCKER_IP="192.168.3.20" # drone's docker network ip
@@ -30,16 +31,28 @@ function check-and-reinit-submodules {
     fi
 }
 
+unset GAZEBO_MODE
+if [ "$FRAME_TYPE" = "" ] || [ "$FRAME_TYPE" = "quad" ]
+then
+  GAZEBO_MODE="gazebo"
+elif [ "$FRAME_TYPE" = "plane" ]
+then
+  GAZEBO_MODE="gazebo_plane"
+else
+  echo "Unknown frame type: $FRAME_TYPE"
+  exit 1
+fi
+
 # Determine what action to perform.
 if [ "$ACTION" = "build" ]
 then
   MAKE_CMD="make px4_sitl_default"
 elif [ "$ACTION" = "simulate_headless" ]
 then
-  MAKE_CMD="HEADLESS=1 make px4_sitl_default gazebo"
+  MAKE_CMD="HEADLESS=1 make px4_sitl_default $GAZEBO_MODE"
 elif [ "$ACTION" = "simulate" ]
 then
-  MAKE_CMD="make px4_sitl_default gazebo"
+  MAKE_CMD="make px4_sitl_default $GAZEBO_MODE"
 elif [ "$ACTION" = "mavlink_router" ]
 then
   while true
@@ -121,11 +134,13 @@ then
 fi
 
 CURRENT_DIRECTORY=$(pwd)
-PWD_LOC=$(python -c "import os.path; print os.path.relpath(\"$CURRENT_DIRECTORY\", \"$ROOT_PATH\")")
+PWD_LOC=$(python -c "import os.path; \
+  print os.path.relpath(\"$CURRENT_DIRECTORY\", \"$ROOT_PATH\")"\
+)
 
 # Build and run the docker image. Adjust file permissions of the docker user to
 # match the host.
-docker build -t uas-at-ucla_px4-simulator docker
+docker build -q -t uas-at-ucla_px4-simulator docker
 docker run                                                                     \
   -it                                                                          \
   --rm                                                                         \
@@ -143,4 +158,7 @@ docker run                                                                     \
   getent group \$HOST_USER || groupadd -g \$HOST_GROUP host_group
   usermod -u \$HOST_USER -g \$HOST_GROUP user
   cd $PWD_LOC/Firmware
+  export PX4_HOME_LAT=$LATITUDE
+  export PX4_HOME_LON=$LONGITUDE
+  export PX4_HOME_ALT=$ALTITUDE
   sudo -u user -H sh -c \"$MAKE_CMD\""
