@@ -135,7 +135,7 @@ fi
 
 CURRENT_DIRECTORY=$(pwd)
 PWD_LOC=$(python -c "import os.path; \
-  print os.path.relpath(\"$CURRENT_DIRECTORY\", \"$ROOT_PATH\")"\
+  print(os.path.relpath(\"$CURRENT_DIRECTORY\", \"$ROOT_PATH\"))"\
 )
 
 # Build and run the docker image. Adjust file permissions of the docker user to
