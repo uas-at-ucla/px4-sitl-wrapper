@@ -16,7 +16,8 @@ set -e
 
 # Load arguments into variables.
 ACTION=$1
-LOCATION=$2
+FRAME_TYPE=$2
+LOCATION=$3
 
 DOCKER_IP="192.168.3.20" # drone's docker network ip
 
@@ -29,16 +30,28 @@ function check-and-reinit-submodules {
     fi
 }
 
+unset GAZEBO_MODE
+if [ "$FRAME_TYPE" = "" ] || [ "$FRAME_TYPE" = "quad" ]
+then
+  GAZEBO_MODE="gazebo"
+elif [ "$FRAME_TYPE" = "plane" ]
+then
+  GAZEBO_MODE="gazebo_plane"
+else
+  echo "Unknown frame type: $FRAME_TYPE"
+  exit 1
+fi
+
 # Determine what action to perform.
 if [ "$ACTION" = "build" ]
 then
   MAKE_CMD="make px4_sitl_default"
 elif [ "$ACTION" = "simulate_headless" ]
 then
-  MAKE_CMD="HEADLESS=1 make px4_sitl_default gazebo"
+  MAKE_CMD="HEADLESS=1 make px4_sitl_default $GAZEBO_MODE"
 elif [ "$ACTION" = "simulate" ]
 then
-  MAKE_CMD="make px4_sitl_default gazebo"
+  MAKE_CMD="make px4_sitl_default $GAZEBO_MODE"
 elif [ "$ACTION" = "mavlink_router" ]
 then
   mavlink-routerd -e localhost:9010 -e $DOCKER_IP:9011 0.0.0.0:14550
@@ -81,10 +94,8 @@ fi
 # Check if submodules need to be cloned.
 check-and-reinit-submodules
 
-# pip install jinja2
-# pip install empy catkin_pkg
-# pip install numpy toml
-# pip install pyyaml
-
-cd Firmware
+cd ./Firmware
+export PX4_HOME_LAT=$LATITUDE
+export PX4_HOME_LON=$LONGITUDE
+export PX4_HOME_ALT=$ALTITUDE
 bash -c "$MAKE_CMD"
