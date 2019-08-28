@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# Exit if any errors are encountered.
+set -e
+
 cd "$(dirname "$0")"
 
 python3 -m venv px4_venv
