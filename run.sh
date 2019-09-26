@@ -140,7 +140,7 @@ PWD_LOC=$(python -c "import os.path; \
 
 # Build and run the docker image. Adjust file permissions of the docker user to
 # match the host.
-docker build -q -t uas-at-ucla_px4-simulator docker
+docker build -t uas-at-ucla_px4-simulator docker
 docker run                                                                     \
   -it                                                                          \
   --rm                                                                         \
