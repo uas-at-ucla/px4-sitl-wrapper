@@ -3,10 +3,10 @@
 # Intro to MAVLink, QGroundControl, and the PX4 Simulator
 
 # Contents
-* [Overview](/uas-at-ucla/px4-sitl-wrapper/blob/master/README.md#overview)
-* [Installing QGroundControl](/uas-at-ucla/px4-sitl-wrapper/blob/master/README.md#installing-qgroundcontrol)
-* [Setting Up the Simulator](/uas-at-ucla/px4-sitl-wrapper/blob/master/README.md#setting-up-the-simulator)
-* [Using QGroundControl](/uas-at-ucla/px4-sitl-wrapper/blob/master/README.md#using-qgroundcontrol)
+* [Overview](/README.md#overview)
+* [Installing QGroundControl](/README.md#installing-qgroundcontrol)
+* [Setting Up the Simulator](/README.md#setting-up-the-simulator)
+* [Using QGroundControl](/README.md#using-qgroundcontrol)
 
 # Overview
 * [MAVLink](https://mavlink.io/en/): "a very lightweight messaging protocol for communicating with drones"
