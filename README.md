@@ -3,10 +3,10 @@
 # Intro to MAVLink, QGroundControl, and the PX4 Simulator
 
 # Contents
-* [Overview](/subsystems/controls/mavlink-qgound-px4sim#overview)
-* [Installing QGroundControl](/subsystems/controls/mavlink-qgound-px4sim#installing-qgroundcontrol)
-* [Setting Up the Simulator](/subsystems/controls/mavlink-qgound-px4sim#setting-up-the-simulator)
-* [Using QGroundControl](/subsystems/controls/mavlink-qgound-px4sim#using-qgroundcontrol)
+* [Overview](https://github.com/uas-at-ucla/px4-sitl-wrapper/blob/master/README.md#overview)
+* [Installing QGroundControl](https://github.com/uas-at-ucla/px4-sitl-wrapper/blob/master/README.md#installing-qgroundcontrol)
+* [Setting Up the Simulator](https://github.com/uas-at-ucla/px4-sitl-wrapper/blob/master/README.md#setting-up-the-simulator)
+* [Using QGroundControl](https://github.com/uas-at-ucla/px4-sitl-wrapper/blob/master/README.md#using-qgroundcontrol)
 
 # Overview
 * [MAVLink](https://mavlink.io/en/): "a very lightweight messaging protocol for communicating with drones"
@@ -27,7 +27,7 @@ You can also get the iOS/Android app for fun.
 # Setting Up the Simulator
 [Clone our px4-sitl-wrapper repository](https://github.com/uas-at-ucla/px4-sitl-wrapper.git), which contains the PX4 Firmware and scripts for setting up simulation.
 ## Running with Docker
-See the [Docker Setup instructions on the Software Setup page](/docs/software/tutorials/environment_setup#docker-setup) if you need to install Docker.
+See the [Docker Setup instructions on the Software Setup page](https://uasatucla.org/docs/software/tutorials/environment_setup#docker-setup) if you need to install Docker.
 
 If you have Docker, simply run:
 ```bash
