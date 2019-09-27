@@ -90,7 +90,7 @@ You can also just flash [this disk image](https://drive.google.com/open?id=1LZpy
 ## Establishing Communication
 If you run QGroundControl on the same computer as the simulator, QGroundControl will automatically connect to it. However, it is important to know how to connect to a remote machine, whether it be a simulator or the real drone.
 
-The PX4 Firmware uses TCP to communicate with the Gazebo simulator and UDP to communicate with outside world, using [the ports documented here](https://dev.px4.io/master/en/simulation/#default-px4-mavlink-udp-ports) (scroll down to see a nice diagram).
+The PX4 Firmware uses TCP to communicate with the Gazebo simulator and UDP to communicate with outside world, using [the ports documented here](https://dev.px4.io/master/en/simulation/#default-px4-mavlink-udp-ports) (scroll down on that page to see a nice diagram).
 
 As per the documentation, we will be listening on UDP port 14550 in QGroundControl. We also need to know that the port used to send and receive on the other end (where the PX4 Firmware is running) is 14570.
 
