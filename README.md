@@ -128,7 +128,32 @@ INFO  [mavlink] partner IP: 192.168.0.11
 ```
 After this, the simulator is forever locked into sending data to that IP address. You cannot connect from a different computer unless you restart the simulator.
 
-Obviously, it could be helpful to connect multiple computers to the drone, so in practice we use [mavlink-router](https://github.com/intel/mavlink-router), which connects to the drone and can route the MAVLink data stream to multiple specific IP addresses.
+### MAVLink Router
+Obviously, it could be helpful to connect multiple computers to the drone, so in practice we use [MAVLink Router](https://github.com/intel/mavlink-router), which connects to the drone and can route the MAVLink data stream to multiple IP addresses. Specifically, you can send data via UDP to pre-configured IP addresses, and it also sets up a TCP server which accepts connections from anyone.
+
+The best way to run MAVLink Router is with the following command, which uses Docker:
+```bash
+./run.sh mavlink_router
+```
+This runs something like `mavlink-routerd -e 192.168.3.20:9011 0.0.0.0:14550`, where one or more destination addresses are set with `-e`, and the last argument is the address of the flight controller.
+
+MAVLink Router automatically listens on TCP port **5760**. To connect to this (from any computer), create a new Comm Link as in the previous instructions (TODO Link), except this one will be of type `TCP`. The TCP Port should default to 5760, and the Host Address needs to be set to the IP address of the computer running MAVLink Router.
+
+Note that MAVLink Router does not work the same way for UDP. You need to specifiy the IP address of each computer you want to receive data over UDP using `-e` as noted above. One reason you might care about the difference between UDP and TCP is that UDP is lighter-weight protocol more suited to streaming data.
+
+#### The Weirdness of Broadcasting over UDP
+The following is not a typical way to use MAVLink Router, but may be interesting for advanced users. There are a couple ways to specify a *broadcast address* in MAVLink Router. Both of these commands have the same effect (or so it seems, as it isn't documented anywhere):
+```bash
+mavlink-routerd -e 255.255.255.255:9010 0.0.0.0:14550
+```
+```bash
+mavlink-routerd -e :9010 0.0.0.0:14550
+```
+This will broadcast the MAVLink data via UDP to all machines on the local network (This is the effect of sending to the IP address 255.255.255.255). **However, as soon as MAVLink Router receives a connection from QGroundControl, it will stop broadcasting and start communicating solely with the connected computer.**
+
+To connect from QGroundControl, create a new UDP Comm Link with the relevant Listening Port (**9010** in this case). You do not need to add any Target Hosts.
+
+In effect, this can be used when you do not initially know the IP address of the computer on which you are running QGroundControl. To use multiple computers this way, simply specifiy multiple ports using multiple `-e` statements.
 
 ## Units of Measurement
 From the AUVSI SUAS rules, the ground station display "must indicate the UAS speed in KIAS or ground speed in knots" (KIAS is just knots but specifically refers to airspeed). You can switch to these units from General Settings (click on the `Q` icon).
