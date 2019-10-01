@@ -137,7 +137,7 @@ The best way to run MAVLink Router is with the following command, which uses Doc
 ```
 This runs something like `mavlink-routerd -e 192.168.3.20:9011 0.0.0.0:14550`, where one or more destination addresses are set with `-e`, and the last argument is the address of the flight controller.
 
-MAVLink Router automatically listens on TCP port **5760**. To connect to this (from any computer), create a new Comm Link as in the previous instructions (TODO Link), except this one will be of type `TCP`. The TCP Port should default to 5760, and the Host Address needs to be set to the IP address of the computer running MAVLink Router.
+MAVLink Router automatically listens on TCP port **5760**. To connect to this (from any computer), create a new Comm Link as in the [previous instructions](/README.md#instructions), except this one will be of type `TCP`. The TCP Port should default to 5760, and the Host Address needs to be set to the IP address of the computer running MAVLink Router.
 
 Note that MAVLink Router does not work the same way for UDP. You need to specifiy the IP address of each computer you want to receive data over UDP using `-e` as noted above. One reason you might care about the difference between UDP and TCP is that UDP is lighter-weight protocol more suited to streaming data.
 
