@@ -7,6 +7,8 @@
 * [Installing QGroundControl](/README.md#installing-qgroundcontrol)
 * [Setting Up the Simulator](/README.md#setting-up-the-simulator)
 * [Using QGroundControl](/README.md#using-qgroundcontrol)
+  * [Establishing Communication](/README.md#establishing-communication)
+  * [Units of Measurement](/README.md#units-of-measurement)
 
 # Overview
 * [MAVLink](https://mavlink.io/en/): "a very lightweight messaging protocol for communicating with drones"
