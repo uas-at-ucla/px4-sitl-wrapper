@@ -107,6 +107,7 @@ else
 fi
 
 # Build the docker image.
+docker pull uasatucla/px4-simulator
 docker build -t uasatucla/px4-simulator --cache-from uasatucla/px4-simulator --build-arg BUILDKIT_INLINE_CACHE=1 docker
 
 # Run the docker image.
