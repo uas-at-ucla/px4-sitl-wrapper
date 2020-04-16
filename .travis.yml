@@ -18,10 +18,9 @@ script:
 
 deploy:
   provider: script
-  script: bash docker_push
+  script: bash docker_push.sh
   on:
     branch: master
-  skip_cleanup: true
 
 # Encrypted Dockerhub password
 env:
