@@ -38,7 +38,7 @@ SITL_RUN_CMD="cd /Firmware/build/px4_sitl_default/tmp && /Firmware/Tools/sitl_ru
 # Determine what action to perform.
 if [ "$ACTION" = "build" ]
 then
-  RUN_CMD="echo \"Docker container built and ran successfully\""
+  RUN_CMD="echo 'Docker container built and ran successfully'"
 elif [ "$ACTION" = "simulate_headless" ]
 then
   RUN_CMD="HEADLESS=1 $SITL_RUN_CMD"
