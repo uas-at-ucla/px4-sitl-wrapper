@@ -20,8 +20,9 @@ script:
   - "docker-compose down"
 
 deploy:
+  skip_cleanup: true
   provider: script
-  script: bash docker_push.sh
+  script: docker_push.sh
   on:
     branch: master
 
