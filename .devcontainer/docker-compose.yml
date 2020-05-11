@@ -1,0 +1,26 @@
+version: '3.2'
+
+services:
+  cache:
+    image: uasatucla/px4-simulator-env
+  px4-simulator-env:
+    depends_on:
+      - cache
+    build: 
+      context: .
+      cache_from:
+        - uasatucla/px4-simulator-env
+      args:
+        - BUILDKIT_INLINE_CACHE=1
+    image: uasatucla/px4-simulator-env
+    container_name: uasatucla_px4-simulator-env
+    environment:
+      - DISPLAY=:0
+    volumes:
+      - ..:/workspace:cached
+      - /tmp/.X11-unix:/tmp/.X11-unix:ro
+    ports:
+      - 14570:14570/udp
+      - 14580:14580/udp
+      - 5760:5760/tcp
+    command: /bin/sh -c "while sleep 1000; do :; done"

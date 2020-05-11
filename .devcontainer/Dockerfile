@@ -199,19 +199,4 @@ RUN git clone https://github.com/intel/mavlink-router.git && \
     make && \
     sudo make install
 
-RUN git clone https://github.com/uas-at-ucla-dependencies/Firmware.git
-WORKDIR /Firmware
-RUN git submodule update --init --recursive
-
-# Fix compilation error by pulling commit from (https://github.com/PX4/sitl_gazebo/pull/408)
-WORKDIR /Firmware/Tools/sitl_gazebo
-RUN git config user.email "you@example.com" && git config user.name "Your Name"
-RUN git fetch && git cherry-pick -x 7635df811986f1da69a28ffdd195faa22be7ada5
-WORKDIR /Firmware
-RUN git config user.email "you@example.com" && git config user.name "Your Name" \
-    && git add Tools/sitl_gazebo && git commit -m 'Updated Tools/sitl_gazebo'
-
-# Note: A lot of the important build/run stuff happens in Firmware/platforms/posix/cmake/sitl_target.cmake if you want to understand how it works
-RUN make px4_sitl_default px4
-RUN make px4_sitl_default sitl_gazebo
-WORKDIR /
+WORKDIR /workspace

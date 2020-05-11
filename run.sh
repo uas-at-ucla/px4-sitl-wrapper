@@ -14,6 +14,11 @@ cd "$(dirname "$0")";
 # Exit if any errors are encountered.
 set -e
 
+# Activate python virtualenv if it exists
+if test -f "px4_venv/bin/activate"; then
+  source "px4_venv/bin/activate"
+fi
+
 # Load arguments into variables.
 ACTION=$1
 FRAME_TYPE=$2
@@ -33,12 +38,18 @@ else
   exit 1
 fi
 
-SITL_RUN_CMD="cd /Firmware/build/px4_sitl_default/tmp && /Firmware/Tools/sitl_run.sh /Firmware/build/px4_sitl_default/bin/px4 none gazebo $GAZEBO_MODE /Firmware /Firmware/build/px4_sitl_default"
+DIR="$(pwd)"
+SITL_RUN_CMD="cd \"$DIR/Firmware/build/px4_sitl_default/tmp\" && \"$DIR/Firmware/Tools/sitl_run.sh\" \"$DIR/Firmware/build/px4_sitl_default/bin/px4\" none gazebo $GAZEBO_MODE \"$DIR/Firmware\" \"$DIR/Firmware/build/px4_sitl_default\""
 
 # Determine what action to perform.
 if [ "$ACTION" = "build" ]
 then
-  RUN_CMD="echo 'Docker container built and ran successfully'"
+  # Note: A lot of the important build/run stuff happens in Firmware/platforms/posix/cmake/sitl_target.cmake if you want to understand how it works
+  git submodule update --init --recursive
+  cd ./Firmware
+  make px4_sitl_default px4
+  make px4_sitl_default sitl_gazebo
+  exit
 elif [ "$ACTION" = "simulate_headless" ]
 then
   RUN_CMD="HEADLESS=1 $SITL_RUN_CMD"
@@ -47,29 +58,7 @@ then
   RUN_CMD="$SITL_RUN_CMD"
 elif [ "$ACTION" = "mavlink_router" ]
 then
-  while true
-  do
-    unset PX4_RUNNING_CONTAINER
-    while [ -z $PX4_RUNNING_CONTAINER ]
-    do
-      PX4_RUNNING_CONTAINER=$(docker ps \
-        --filter status=running \
-        --filter name="uasatucla_px4-simulator" \
-        --format "{{.ID}}" \
-        --latest
-      )
-
-      sleep 0.5
-    done
-
-    echo "PX4 simulator docker started!"
-
-    docker exec -it $PX4_RUNNING_CONTAINER \
-      bash -c "
-      set -e
-      mavlink-routerd -e \$HOST_IP:9010 -e $DOCKER_IP:9011 0.0.0.0:14550"
-    sleep 1
-  done
+  mavlink-routerd -e localhost:9010 -e $DOCKER_IP:9011 0.0.0.0:14550
   exit
 else
   echo "Unknown action given: $ACTION"
@@ -106,25 +95,8 @@ else
   exit 1
 fi
 
-# Build the docker image.
-docker pull uasatucla/px4-simulator
-docker build -t uasatucla/px4-simulator --cache-from uasatucla/px4-simulator --build-arg BUILDKIT_INLINE_CACHE=1 docker
-
-# Run the docker image.
-docker run                                                                     \
-  -it                                                                          \
-  --rm                                                                         \
-  -p 14570:14570/udp                                                           \
-  -p 14580:14580/udp                                                           \
-  -p 5760:5760/tcp                                                             \
-  -e DISPLAY=:0                                                                \
-  -v /tmp/.X11-unix:/tmp/.X11-unix:ro                                          \
-  --name uasatucla_px4-simulator                                               \
-  uasatucla/px4-simulator                                                      \
-  bash -c "
-  set -e
-  cd ./Firmware
-  export PX4_HOME_LAT=$LATITUDE
-  export PX4_HOME_LON=$LONGITUDE
-  export PX4_HOME_ALT=$ALTITUDE
-  sh -c \"$RUN_CMD\""
+cd ./Firmware
+export PX4_HOME_LAT=$LATITUDE
+export PX4_HOME_LON=$LONGITUDE
+export PX4_HOME_ALT=$ALTITUDE
+bash -c "$RUN_CMD"

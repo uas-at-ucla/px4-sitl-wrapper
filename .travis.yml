@@ -5,16 +5,19 @@ os:
   - linux
 
 addons:
-    apt:
-      packages:
-        - xvfb
+  apt:
+    packages:
+      - xvfb
 
 install:
   - export DISPLAY=':99.0'
   - Xvfb :99 -screen 0 1024x768x24 > /dev/null 2>&1 &
 
 script:
-- "./run.sh build"
+  - "cd .devcontainer"
+  - "docker-compose up --build -d"
+  - "docker-compose run px4-simulator-env ./run.sh build"
+  - "docker-compose down"
 
 deploy:
   provider: script
