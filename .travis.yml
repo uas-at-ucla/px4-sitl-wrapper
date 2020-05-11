@@ -16,7 +16,7 @@ install:
 script:
   - "cd .devcontainer"
   - "docker-compose up --build -d"
-  - "docker-compose run px4-simulator-env ./run.sh build"
+  - "docker-compose exec px4-simulator-env ./run.sh build"
   - "docker-compose down"
   - cd ..
 
