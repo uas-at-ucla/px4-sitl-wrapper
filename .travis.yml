@@ -14,20 +14,18 @@ install:
   - Xvfb :99 -screen 0 1024x768x24 > /dev/null 2>&1 &
 
 script:
-  - "cd .devcontainer"
   - "docker-compose up --build -d"
-  - "docker-compose exec px4-simulator-env ./run.sh build"
+  - "docker-compose exec dev ./run.sh build"
   - "docker-compose down"
-  - cd ..
 
 deploy:
   skip_cleanup: true
   provider: script
-  script: docker_push.sh
+  script: bash docker_push.sh
   on:
     branch: master
 
-# Encrypted Dockerhub password
+# Encrypted Docker Hub password
 env:
   global:
-    secure: aDSJxiptAmFY8XD/X+qKi8zrna0vqe989e8BmzGc59/HAfS35CqflkMI0gEGYg8NUwlKWnUrrOv52fm3Li4PPsv1oUhZbfeKGzD19HDoVWguveDzsR8FCFHxbrIBIH/CQvzssKieQ3A8URoN6ToCvOz8NYukzyX9FKLv8FZ7SyfiUAd5vAaL9/VRsPjtxqnYp3wM6vYykyw3aIMD6UG4/SUa3d52hBSR+WaThtixSXz1RpKnQi4Dsv00J/4vrsLc/TnU6eA0bsWtJXg5MIKm0XOutSNVCeUjQNyEzjSvS35mqd0sA9s4+doVCcQP1+zXXUij42ZO/YH9GqGYnA0hreVQcUJg0grDZ2kVbC4vBy0OUM4u4/VnEYpV07reIUut1NQEtK1vPIH7XarZpOuG7wmdUGCq5a0svDtAFYq/x+u6sIe61gUVS2m1YxHAFPaPUz/b20XSHwBGDve9M8wxXA6EBd02FWi+KVDWm6Ipx6WeqN48vK5O2Ne+pwK59gDK2e8o8K2Ou7UDMZQ5yD4w2RacEXRup0I4geaOlST3Ljyx6Q2xkLMfRxXGMA18sCSNvB2YMW4D8aPN3ZdpZHX4mpN9rfZB8/TIzkSSYetHyuPYASDPtoqden2w43atgYF9KHbIX3UmnDG3RIIfgX6/Bu9UUKHItttPjzROTqjov7c=
+    secure: "aDSJxiptAmFY8XD/X+qKi8zrna0vqe989e8BmzGc59/HAfS35CqflkMI0gEGYg8NUwlKWnUrrOv52fm3Li4PPsv1oUhZbfeKGzD19HDoVWguveDzsR8FCFHxbrIBIH/CQvzssKieQ3A8URoN6ToCvOz8NYukzyX9FKLv8FZ7SyfiUAd5vAaL9/VRsPjtxqnYp3wM6vYykyw3aIMD6UG4/SUa3d52hBSR+WaThtixSXz1RpKnQi4Dsv00J/4vrsLc/TnU6eA0bsWtJXg5MIKm0XOutSNVCeUjQNyEzjSvS35mqd0sA9s4+doVCcQP1+zXXUij42ZO/YH9GqGYnA0hreVQcUJg0grDZ2kVbC4vBy0OUM4u4/VnEYpV07reIUut1NQEtK1vPIH7XarZpOuG7wmdUGCq5a0svDtAFYq/x+u6sIe61gUVS2m1YxHAFPaPUz/b20XSHwBGDve9M8wxXA6EBd02FWi+KVDWm6Ipx6WeqN48vK5O2Ne+pwK59gDK2e8o8K2Ou7UDMZQ5yD4w2RacEXRup0I4geaOlST3Ljyx6Q2xkLMfRxXGMA18sCSNvB2YMW4D8aPN3ZdpZHX4mpN9rfZB8/TIzkSSYetHyuPYASDPtoqden2w43atgYF9KHbIX3UmnDG3RIIfgX6/Bu9UUKHItttPjzROTqjov7c="

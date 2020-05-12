@@ -1,5 +1,5 @@
 #!/bin/bash
-docker build -t uasatucla/px4-simulator -f prod.Dockerfile .
+docker-compose build prod
 echo "$DOCKER_PASSWORD" | docker login -u uasatucla --password-stdin
-docker push uasatucla/px4-simulator-env
-docker push uasatucla/px4-simulator
+docker-compose push dev
+docker-compose push prod
