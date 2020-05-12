@@ -27,25 +27,35 @@ Installing is easy!
 You can also get the iOS/Android app for fun.
 
 # Setting Up the Simulator
-[Clone our px4-sitl-wrapper repository](https://github.com/uas-at-ucla/px4-sitl-wrapper.git), which contains the PX4 Firmware and scripts for setting up simulation.
-## Running with Docker
-See the [Docker Setup instructions on the Software Setup page](https://uasatucla.org/docs/software/tutorials/environment_setup#docker-setup) if you need to install Docker.
 
-If you have Docker, simply run:
+## Running with Docker
+You can install Docker from https://docs.docker.com/get-docker.
+
+Download the pre-made Docker image (no need to clone the GitHub repo)
 ```bash
-./run.sh simulate_headless
+docker pull uasatucla/px4-simulator
 ```
+
+Run a Docker container and start the simulator:
+```bash
+docker run -it --rm --name px4-simulator -p 14570:14570/udp -p 5760:5760/tcp uasatucla/px4-simulator ./run.sh simulate_headless
+```
+*Temporary note: I'm interested in making an "integration-testing" repository that would enable testing integration between px4, controls code, ground code, vision code, etc. Once that exists people won't have to copy that giant command into their terminal.*
+
 The general usage of the script is:
 ```bash
 ./run.sh [action] [frame_type] [location] # 'action' is reqiured
 ```
-Take a peak at the script to see what the options are.
+For more details, [take a look at the script](https://github.com/uas-at-ucla/px4-sitl-wrapper/blob/master/run.sh).
 
 ### Explanation
 The ```simulate_headless``` action runs the PX4 Firmware, which is fed simulated data by Gazebo. You can also use the ```simulate``` action (without "headless") to get a nice GUI that shows the simulated drone, at the expense of more computing resources. The GUI won't work with Docker out of the box (see below for running natively), but you typically don't need it.
 
-## Running Natively on Mac
-### Setup
+## Running Natively
+Running with Docker is the easiest, but you can also try running directly on your machine.
+[Clone the px4-sitl-wrapper repository](https://github.com/uas-at-ucla/px4-sitl-wrapper.git), which contains the PX4 Firmware and scripts for setting up simulation.
+### MacOS
+**Setup:**
 Requires [Python 3](https://docs.python-guide.org/starting/installation/) and [Homebrew](https://brew.sh/).
 ```bash
 cd path/to/px4-sitl-wrapper
@@ -55,28 +65,30 @@ There may be an issue with how this script installs python packages. The most re
 ```bash
 ./setup_python_venv.sh 
 ```
-
-Message @Ryan Nemiroff if you have any issues running on Mac, the setup script may not cover everything yet.
-
-### Run
+Finally, compile the code:
 ```bash
-./run_native.sh simulate_headless
+./run.sh build
 ```
-The usage is the same as for ```run.sh```
+
+**Run:**
+```bash
+./run.sh simulate_headless
+```
 
 **Clean your build:**
 Sometimes a good thing to do if you run into problems building:
 ```cd ./Firmware && make clean && cd ..```
 
-## Running Natively on Linux & Raspberry Pi
-Similar to the above, the following may work on desktop Ubuntu, although it hasn't been tested. There is also no support for Ubuntu 19 yet, and you might as well use Docker if on desktop Linux.
+### Linux & Raspberry Pi
+Similar to the above, the following may work on desktop Ubuntu, although it hasn't been tested. There is also no support for Ubuntu 19 as of writing this, and you might as well use Docker if on desktop Linux.
 ```bash
 ./setup_debian.sh # install px4 & gazebo dependiencies
 ./setup_python_venv.sh # setup python virtual env & install python dependencies
-./run_native.sh simulate_headless # build & run
+./run.sh build
+./run.sh simulate_headless
 ```
 This *has* been tested on [Raspbian Stretch](http://downloads.raspberrypi.org/raspbian_lite/images/raspbian_lite-2019-04-09/) on Raspberry Pi (no support for Buster yet). It takes a while (few hours) so you'll want to run everything at once and leave it running: 
-`./setup_debian.sh && ./setup_python_venv.sh && ./run_native.sh simulate_headless`
+`./setup_debian.sh && ./setup_python_venv.sh && ./run.sh build && ./run.sh simulate_headless`
 Optionally, you could use [screen](https://raspi.tv/2012/using-screen-with-raspberry-pi-to-avoid-leaving-ssh-sessions-open) to allow you to close the terminal while it runs.
 
 **Warning:** It's possible to encounter network timeouts in setup_python_venv.sh. If this happens you will just have to re-run it until it works.
@@ -133,9 +145,13 @@ After this, the simulator is forever locked into sending data to that IP address
 ### MAVLink Router
 Obviously, it could be helpful to connect multiple computers to the drone, so in practice we use [MAVLink Router](https://github.com/intel/mavlink-router), which connects to the drone and can route the MAVLink data stream to multiple IP addresses. Specifically, you can send data via UDP to pre-configured IP addresses, and it also sets up a TCP server which accepts connections from anyone.
 
-The best way to run MAVLink Router is with the following command, which uses Docker:
+The best way to run MAVLink Router is with the following command:
 ```bash
 ./run.sh mavlink_router
+```
+If you're using Docker and started the simulator as in [Running with Docker](#running-with-docker):
+```bash
+docker exec -it px4-simulator ./run.sh mavlink_router
 ```
 This runs something like `mavlink-routerd -e 192.168.3.20:9011 0.0.0.0:14550`, where one or more destination addresses are set with `-e`, and the last argument is the address of the flight controller.
 
