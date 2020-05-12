@@ -14,7 +14,7 @@ install:
   - Xvfb :99 -screen 0 1024x768x24 > /dev/null 2>&1 &
 
 script:
-  - "docker-compose up --build -d"
+  - "docker-compose up --build -d dev"
   - "docker-compose exec dev ./run.sh build"
   - "docker-compose down"
 
