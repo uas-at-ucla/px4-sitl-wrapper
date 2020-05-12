@@ -15,7 +15,6 @@ install:
 
 script:
   - "cd .devcontainer"
-  - "docker pull ubuntu:18.04"
   - "docker-compose up --build -d"
   - "docker-compose exec px4-simulator-env ./run.sh build"
   - "docker-compose down"
