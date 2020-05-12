@@ -1,4 +1,4 @@
-FROM ubuntu:18.04
+FROM ubuntu:18.04@sha256:bec5a2727be7fff3d308193cfde3491f8fba1a2ba392b7546b43a051853a341d
 
 # PX4 base development environment #############################################
 ENV DEBIAN_FRONTEND noninteractive
